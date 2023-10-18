@@ -2,8 +2,21 @@
 
 void Window::onEvent(SDL_Event const &event) {
   // Keyboard events
-    if (event.key.keysym.sym == SDLK_SPACE)
+  if (event.type == SDL_KEYDOWN) {
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w) {
       m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
+    }
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s) {
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Down));
+    }
+  } else if (event.type == SDL_KEYUP) {
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w) {
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Up));
+    }
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s) {
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Down));
+    }
+  }
 }
 
 void Window::onCreate(){

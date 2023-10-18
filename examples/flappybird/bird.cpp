@@ -42,6 +42,9 @@ void Bird::create(GLuint program) {
     // Cabeça
     glm::vec2{0.0f, 0.3f},
 };
+for (auto &position : positions) {
+    position *= 2.0f;
+}
 
 // Não é necessário normalizar as coordenadas no caso do pássaro
 
@@ -138,12 +141,13 @@ void Bird::update(GameData const &gameData, float deltaTime) {
     if (gameData.m_input[gsl::narrow<size_t>(Input::Up)]) {
       m_velocity.y = 0.5f; // Ajuste a força do impulso conforme necessário.
     }
+    if (gameData.m_input[gsl::narrow<size_t>(Input::Down)]) {
+      m_velocity.y = -0.5f; // Ajuste a força do impulso conforme necessário.
 
-    // Aplique a força da gravidade para puxar o pássaro para baixo.
-    m_velocity.y -= 0.2f * deltaTime; // Ajuste o valor da gravidade conforme necessário.
+    }
 
-    // Atualize a posição vertical com base na velocidade.
     m_translation.y += m_velocity.y * deltaTime;
+
 
     // Adicione a lógica para limitar a altura máxima que o pássaro pode atingir.
     // Isso impede que o pássaro suba infinitamente.
