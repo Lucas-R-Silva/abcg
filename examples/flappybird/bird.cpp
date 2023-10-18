@@ -21,7 +21,7 @@ void Bird::create(GLuint program) {
   m_velocity = glm::vec2(0);
 
   // Define as coordenadas dos vértices do pássaro (simétrico)
-std::array positions{
+  std::array positions{
     // Corpo do pássaro
     glm::vec2{0.0f, 0.0f},
     glm::vec2{0.1f, -0.2f},
@@ -132,25 +132,32 @@ void Bird::destroy() {
   abcg::glDeleteBuffers(1, &m_EBO);
   abcg::glDeleteVertexArrays(1, &m_VAO);
 }
-
 void Bird::update(GameData const &gameData, float deltaTime) {
-  // Remova a lógica existente de rotação e impulso.
-
   if (gameData.m_state == State::Playing) {
-    // Adicione a lógica de movimentação horizontal.
-    if (gameData.m_input[gsl::narrow<size_t>(Input::Left)]) {
-      // Mova para a esquerda
-      m_translation.x -= 0.2f * deltaTime; // Ajuste a velocidade conforme necessário.
-    }
-    if (gameData.m_input[gsl::narrow<size_t>(Input::Right)]) {
-      // Mova para a direita
-      m_translation.x += 0.2f * deltaTime; // Ajuste a velocidade conforme necessário.
+    // Se a tecla "Up" estiver pressionada, aplique uma força de impulso para cima.
+    if (gameData.m_input[gsl::narrow<size_t>(Input::Up)]) {
+      m_velocity.y = 0.5f; // Ajuste a força do impulso conforme necessário.
     }
 
-    // Aplique a gravidade para o Bird cair lentamente.
-    //m_velocity.y -= 9.8f * deltaTime; // Ajuste o valor conforme necessário.
+    // Aplique a força da gravidade para puxar o pássaro para baixo.
+    m_velocity.y -= 0.2f * deltaTime; // Ajuste o valor da gravidade conforme necessário.
 
     // Atualize a posição vertical com base na velocidade.
-    //m_translation.y += m_velocity.y * deltaTime;
+    m_translation.y += m_velocity.y * deltaTime;
+
+    // Adicione a lógica para limitar a altura máxima que o pássaro pode atingir.
+    // Isso impede que o pássaro suba infinitamente.
+    const float maxHeight = 1.0f; // Ajuste a altura máxima conforme necessário.
+    if (m_translation.y > maxHeight) {
+      m_translation.y = maxHeight;
+      m_velocity.y = 0.0f; // Reset da velocidade para evitar que o pássaro continue subindo.
+    }
+
+    // Adicione a lógica para limitar a altura mínima que o pássaro pode atingir.
+    const float minHeight = -1.0f; // Ajuste a altura mínima conforme necessário.
+    if (m_translation.y < minHeight) {
+      m_translation.y = minHeight;
+      m_velocity.y = 0.0f; // Reset da velocidade para evitar que o pássaro continue caindo.
+    }
   }
 }

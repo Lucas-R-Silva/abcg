@@ -2,14 +2,8 @@
 
 void Window::onEvent(SDL_Event const &event) {
   // Keyboard events
-  if (event.type == SDLK_LEFT) {
     if (event.key.keysym.sym == SDLK_SPACE)
-      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Left));
-  }
-  if (event.type == SDLK_RIGHT) {
-    if (event.key.keysym.sym == SDLK_SPACE)
-      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Right));
-  }
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
 }
 
 void Window::onCreate(){
