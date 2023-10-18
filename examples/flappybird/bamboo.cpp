@@ -19,7 +19,7 @@ void Bamboos::create(GLuint program, int quantity) {
   m_Bamboos.clear();
   m_Bamboos.resize(quantity);
 
-  float spacing = 0.4f; // Espaçamento entre os pares de bambu
+  //float spacing = 0.4f; // Espaçamento entre os pares de bambu
 
   for (auto &bamboo : m_Bamboos) {
     bamboo = makeBamboo();
@@ -28,10 +28,10 @@ void Bamboos::create(GLuint program, int quantity) {
     bamboo.m_translation = {m_randomDist(m_randomEngine), 1.2f};
 
     // Crie um segundo bamboo para formar um par alinhado
-    Bamboo secondBamboo = makeBamboo();
-    secondBamboo.m_translation = {bamboo.m_translation.x + spacing, 1.2f};
+    //Bamboo secondBamboo = makeBamboo();
+    //secondBamboo.m_translation = {bamboo.m_translation.x + spacing, 1.2f};
 
-    m_Bamboos.push_back(secondBamboo);
+    //m_Bamboos.push_back(secondBamboo);
   }
 }
 
@@ -39,27 +39,25 @@ void Bamboos::paint() {
   abcg::glUseProgram(m_program);
 
   for (const auto &bamboo : m_Bamboos) {
-    abcg::glBindVertexArray(bamboo.m_VAO);
+    // Verifique se o objeto bamboo está à esquerda da tela
+    if (bamboo.m_translation.x < 0.7f) {
+      abcg::glBindVertexArray(bamboo.m_VAO);
 
-    abcg::glUniform4fv(m_colorLoc, 1, &bamboo.m_color.r);
-    abcg::glUniform1f(m_scaleLoc, bamboo.m_scale);
-    abcg::glUniform1f(m_rotationLoc, bamboo.m_rotation);
+      abcg::glUniform4fv(m_colorLoc, 1, &bamboo.m_color.r);
+      abcg::glUniform1f(m_scaleLoc, bamboo.m_scale);
+      abcg::glUniform1f(m_rotationLoc, bamboo.m_rotation);
 
-    for (auto j : {-2, 0, 2}) {
-      for (auto k : {-2, 0, 2}) {
-        abcg::glUniform2f(m_translationLoc, bamboo.m_translation.x + k,
-                          bamboo.m_translation.y + j);
+      // Defina a translação para o objeto bamboo
+      abcg::glUniform2f(m_translationLoc, bamboo.m_translation.x, bamboo.m_translation.y);
 
-        abcg::glDrawArrays(GL_TRIANGLE_FAN, 0, bamboo.m_polygonSides + 2);
-      }
+      abcg::glDrawArrays(GL_TRIANGLE_FAN, 0, bamboo.m_polygonSides + 2);
+
+      abcg::glBindVertexArray(0);
     }
-
-    abcg::glBindVertexArray(0);
   }
 
   abcg::glUseProgram(0);
 }
-
 
 void Bamboos::destroy() {
   for (auto &bamboo : m_Bamboos) {
@@ -67,6 +65,7 @@ void Bamboos::destroy() {
     abcg::glDeleteVertexArrays(1, &bamboo.m_VAO);
   }
 }
+
 void Bamboos::update(const Bird &bird, float deltaTime) {
   for (auto &bamboo : m_Bamboos) {
     // Move os retângulos para a esquerda
@@ -94,6 +93,7 @@ Bamboos::Bamboo Bamboos::makeBamboo(glm::vec2 translation, float scale) {
 
   bamboo.m_rotation = 0.0f;
   bamboo.m_scale = scale;
+  
 
   // Inicie o retângulo no lado direito da tela (x = 1.0) e vá até o lado esquerdo
   float rectHeight = 2.0f; // Altura do retângulo

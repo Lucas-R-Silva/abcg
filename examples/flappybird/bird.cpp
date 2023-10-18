@@ -17,7 +17,7 @@ void Bird::create(GLuint program) {
 
   // Reset Bird attributes
   m_rotation = 0.0f;
-  m_translation = glm::vec2(0);
+  m_translation = glm::vec2(-0.5f, 0.0f);
   m_velocity = glm::vec2(0);
 
   // Define as coordenadas dos vértices do pássaro (simétrico)
