@@ -21,7 +21,7 @@ void Bird::create(GLuint program) {
   m_velocity = glm::vec2(0);
 
   // Define as coordenadas dos vértices do pássaro (simétrico)
-  std::array positions{
+  std::array<glm::vec2, 14> positions{
     // Corpo do pássaro
     glm::vec2{0.0f, 0.0f},
     glm::vec2{0.1f, -0.2f},
@@ -48,7 +48,7 @@ for (auto &position : positions) {
 
 // Não é necessário normalizar as coordenadas no caso do pássaro
 
-std::array const indices{
+std::array<int, 27> const indices{
     // Corpo
     0, 1, 2,
     0, 2, 3,
