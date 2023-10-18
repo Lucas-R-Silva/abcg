@@ -1,5 +1,4 @@
 #include "bamboo.hpp"
-
 #include <glm/gtx/fast_trigonometry.hpp>
 
 void Bamboos::create(GLuint program, int quantity) {
@@ -20,28 +19,36 @@ void Bamboos::create(GLuint program, int quantity) {
   m_Bamboos.clear();
   m_Bamboos.resize(quantity);
 
- for (auto &bamboo : m_Bamboos) {
+  float spacing = 0.4f; // Espaçamento entre os pares de bambu
+
+  for (auto &bamboo : m_Bamboos) {
     bamboo = makeBamboo();
 
-    // Initialize the bamboo pairs at the top of the game area
+    // Inicialize os pares de bambu na parte superior da área de jogo
     bamboo.m_translation = {m_randomDist(m_randomEngine), 1.2f};
+
+    // Crie um segundo bamboo para formar um par alinhado
+    Bamboo secondBamboo = makeBamboo();
+    secondBamboo.m_translation = {bamboo.m_translation.x + spacing, 1.2f};
+
+    m_Bamboos.push_back(secondBamboo);
   }
 }
 
 void Bamboos::paint() {
   abcg::glUseProgram(m_program);
 
-  for (auto const &bamboo : m_Bamboos) {
+  for (const auto &bamboo : m_Bamboos) {
     abcg::glBindVertexArray(bamboo.m_VAO);
 
     abcg::glUniform4fv(m_colorLoc, 1, &bamboo.m_color.r);
     abcg::glUniform1f(m_scaleLoc, bamboo.m_scale);
     abcg::glUniform1f(m_rotationLoc, bamboo.m_rotation);
 
-    for (auto i : {-2, 0, 2}) {
-      for (auto j : {-2, 0, 2}) {
-        abcg::glUniform2f(m_translationLoc, bamboo.m_translation.x + j,
-                          bamboo.m_translation.y + i);
+    for (auto j : {-2, 0, 2}) {
+      for (auto k : {-2, 0, 2}) {
+        abcg::glUniform2f(m_translationLoc, bamboo.m_translation.x + k,
+                          bamboo.m_translation.y + j);
 
         abcg::glDrawArrays(GL_TRIANGLE_FAN, 0, bamboo.m_polygonSides + 2);
       }
@@ -53,24 +60,23 @@ void Bamboos::paint() {
   abcg::glUseProgram(0);
 }
 
+
 void Bamboos::destroy() {
   for (auto &bamboo : m_Bamboos) {
     abcg::glDeleteBuffers(1, &bamboo.m_VBO);
     abcg::glDeleteVertexArrays(1, &bamboo.m_VAO);
   }
 }
-
 void Bamboos::update(const Bird &bird, float deltaTime) {
   for (auto &bamboo : m_Bamboos) {
-    // Move bamboos downward
-    bamboo.m_translation.y -= 0.2f * deltaTime;
+    // Move os retângulos para a esquerda
+    bamboo.m_translation.x -= 0.2f * deltaTime;
     bamboo.m_rotation = glm::wrapAngle(
         bamboo.m_rotation + bamboo.m_angularVelocity * deltaTime);
-    bamboo.m_translation += bamboo.m_velocity * deltaTime;
 
-    // Wrap-around (reset at the top when off-screen)
-    if (bamboo.m_translation.y < -1.2f) {
-      bamboo.m_translation = {m_randomDist(m_randomEngine), 1.2f};
+    // Wrap-around (reset na direita quando estiver fora da tela à esquerda)
+    if (bamboo.m_translation.x < -1.2f) {
+      bamboo.m_translation = {1.2f, m_randomDist(m_randomEngine)};
     }
   }
 }
@@ -83,26 +89,17 @@ Bamboos::Bamboo Bamboos::makeBamboo(glm::vec2 translation, float scale) {
   // Retângulo
   bamboo.m_polygonSides = 4;
 
-  // Get a random color (actually, a grayscale)
-  std::uniform_real_distribution randomIntensity(0.5f, 1.0f);
-  bamboo.m_color = glm::vec4(randomIntensity(re));
+  // Defina a cor verde
+  bamboo.m_color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Cor verde
 
-  bamboo.m_color.a = 1.0f;
   bamboo.m_rotation = 0.0f;
   bamboo.m_scale = scale;
-  bamboo.m_translation = translation;
 
-  // Get a random angular velocity
-  bamboo.m_angularVelocity = m_randomDist(re);
-
-  // Get a random direction
-  glm::vec2 const direction{m_randomDist(re), m_randomDist(re)};
-  bamboo.m_velocity = glm::normalize(direction) / 7.0f;
-
-  // Criação dos vértices do retângulo
+  // Inicie o retângulo no lado direito da tela (x = 1.0) e vá até o lado esquerdo
+  float rectHeight = 2.0f; // Altura do retângulo
   std::vector<glm::vec2> positions{
-      {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
-  
+      {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -rectHeight}, {1.0f, -rectHeight}};
+
   // Generate VBO
   abcg::glGenBuffers(1, &bamboo.m_VBO);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, bamboo.m_VBO);
@@ -128,6 +125,9 @@ Bamboos::Bamboo Bamboos::makeBamboo(glm::vec2 translation, float scale) {
 
   // End of binding to current VAO
   abcg::glBindVertexArray(0);
+
+  // Defina a posição de translação recebida ou use a posição padrão
+  bamboo.m_translation = translation;
 
   return bamboo;
 }
