@@ -130,7 +130,7 @@ void Window::checkCollisions() {
     auto const distance{
         glm::distance(m_bird.m_translation, bambooTranslation)};
 
-    if (distance < m_bird.m_scale * 0.9f + bamboo.m_scale * 0.85f) {
+    if (distance < m_bird.m_scale * 0.5f + bamboo.m_scale * 0.5f) {
       m_gameData.m_state = State::GameOver;
       m_restartWaitTimer.restart();
     }
