@@ -122,7 +122,7 @@ void Bird::paint(const GameData &gameData) {
   
 
   abcg::glUniform4fv(m_colorLoc, 1, &m_color.r);
-  abcg::glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, 9 * 3, GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 
