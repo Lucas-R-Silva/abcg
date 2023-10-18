@@ -16,4 +16,6 @@ Ele consiste em uma adaptação do jogo Flappy Birds, ao qual o passaro deve des
 
 O primeiro *(Main)* é uma adaptação do arquivo apresentado em aula, no projeto asteroids.
 
-O 
+O passáro *(bird)* foi desenvolvido pela renderização de triângulos, e sua jogabilidade consiste em seta para cima e para baixo.
+
+O bambu é gerado aleatóriamente e o objetivo do jogo consiste em desviar desses bambus gerados aleatóriamente.
