@@ -5,9 +5,8 @@
 
 #include "abcgOpenGL.hpp"
 
-#include "bird.hpp"
 #include "bamboo.hpp"
-#include "gamedata.hpp"
+#include "bird.hpp"
 
 class Window : public abcg::OpenGLWindow {
 protected:
@@ -27,14 +26,12 @@ private:
 
   GameData m_gameData;
 
+  Bamboos m_bamboos;
   Bird m_bird;
-  Bamboo m_bamboo;
-  GLuint m_program;
 
   abcg::Timer m_restartWaitTimer;
 
   ImFont *m_font{};
-  glm::mat4 m_projectionMatrix; 
 
   std::default_random_engine m_randomEngine;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <abcg.hpp>
+#include <GL/glew.h>
 
 class Bird {
 public:
@@ -10,6 +11,7 @@ public:
 
   void update(float deltaTime);
   void jump();
+  void reset();
 
 private:
   GLuint m_program{};

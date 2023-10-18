@@ -1,4 +1,13 @@
 #include "bird.hpp"
+#include <GL/glew.h>
+
+// Método para obter o tamanho do pássaro
+class Bird {
+
+    glm::vec2 getPosition() const { return m_position; } // Método de membro para obter a posição do pássaro
+    glm::vec2 getSize() const { return m_size; } // Método de membro para obter o tamanho do pássaro
+    // Outros métodos da classe
+
 
 void Bird::createBirdGeometry() {
     // Defina os vértices do pássaro (quadrado)
@@ -81,7 +90,7 @@ glUniform1f(glGetUniformLocation(m_program, "birdRotation"), m_rotation);
 
   // Configure o VAO, VBO, EBO, etc., para renderizar o pássaro
   glBindVertexArray(m_vao);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
   glBindVertexArray(0);
   glUseProgram(0);
@@ -115,3 +124,17 @@ void Bird::jump() {
   m_jump = true;
 }
 
+void Bird::reset() {
+    // Redefina a posição do pássaro para a posição inicial
+    m_position = glm::vec2(0.0f, 0.0f);
+
+    // Redefina a velocidade do pássaro
+    m_velocity = glm::vec2(0.0f, 0.0f);
+
+    // Redefina a rotação do pássaro
+    m_rotation = 0.0f;
+
+    // Redefina outros atributos, como m_jump, se aplicável
+}
+
+};
