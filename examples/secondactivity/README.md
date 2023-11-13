@@ -231,10 +231,7 @@ void Window::onCreate() {
 
   // Cria o programa OpenGL a partir dos shaders fornecidos
   m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "lookat.vert",
-                                  .stage = abcg::ShaderStage::Vertex},
-                                 {.source = assetsPath + "lookat.frag",
-                                  .stage = abcg::ShaderStage::Fragment}});
+      abcg::createOpenGLProgram({{.source = assetsPath + "lookat.vert", .stage = abcg::ShaderStage::Vertex}, {.source = assetsPath + "lookat.frag", .stage = abcg::ShaderStage::Fragment}});
 
   // Cria o plano (ground)
   m_ground.create(m_program);
