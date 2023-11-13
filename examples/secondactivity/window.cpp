@@ -19,17 +19,17 @@ template <> struct std::hash<Vertex> {
 void Window::onEvent(SDL_Event const &event) {
   if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-      m_dollySpeed = 1.0f;
+      m_dollySpeed = 2.0;
     if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
-      m_dollySpeed = -1.0f;
+      m_dollySpeed = -2.0;
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
-      m_panSpeed = -1.0f;
+      m_panSpeed = -2.0;
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
-      m_panSpeed = 1.0f;
+      m_panSpeed = 2.0;
     if (event.key.keysym.sym == SDLK_q)
-      m_truckSpeed = -1.0f;
+      m_truckSpeed = -2.0;
     if (event.key.keysym.sym == SDLK_e)
-      m_truckSpeed = 1.0f;
+      m_truckSpeed = 2.0;
   }
   if (event.type == SDL_KEYUP) {
     if ((event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w) &&
@@ -121,31 +121,34 @@ void Window::onCreate() {
 
   // Fim da vinculação ao VAO atual
   abcg::glBindVertexArray(0);
-
-  // Configuração inicial de escala e altura dos cachorros
+  /**
+   *Abaixo vamos definir a escala e altura inicias dos cachorros
+   */
   scale = 0.05f;
   height = 0.0f;
 
-  // Inicialização da posição e ângulo inicial dos 4 cachorros
-  dog[0].position.x = -2.0f;
+  /**
+   *Aqui define-se a posição e o ângulo inicial de cada um dos 4 cachorros
+   */
+  dog[0].position.x = -3.0f;
   dog[0].position.y = height;
-  dog[0].position.z = 2.0f;
-  dog[0].angle = 180.0f;
+  dog[0].position.z = 3.0f;
+  dog[0].angle = 90.0f;
 
-  dog[1].position.x = 2.0f;
+  dog[1].position.x = 3.0f;
   dog[1].position.y = height;
-  dog[1].position.z = 2.0f;
-  dog[1].angle = 270.0f;
+  dog[1].position.z = 3.0f;
+  dog[1].angle = 180.0f;
 
-  dog[2].position.x = 2.0f;
+  dog[2].position.x = 3.0f;
   dog[2].position.y = height;
-  dog[2].position.z = -2.0f;
-  dog[2].angle = 360.0f;
+  dog[2].position.z = -3.0f;
+  dog[2].angle = 270.0f;
 
-  dog[3].position.x = -2.0f;
+  dog[3].position.x = -3.0f;
   dog[3].position.y = height;
-  dog[3].position.z = -2.0f;
-  dog[3].angle = 90.0f;
+  dog[3].position.z = -3.0f;
+  dog[3].angle = 360.0f;
 }
 
 // Carrega um modelo 3D a partir de um arquivo dog.obj usando a biblioteca
@@ -237,10 +240,10 @@ void Window::onPaint() {
    * Chamamos a função drawDog para cada dos 4 cachorros passando a posição do
    * dog no array e sua cor rgb
    */
-  drawDog(0, 1.0f, 1.0f, 1.0f); // Cachorro branco
-  drawDog(1, 0.0f, 1.0f, 1.0f); // Cachorro ciano
-  drawDog(2, 1.0f, 0.0f, 1.0f); // Cachorro magenta
-  drawDog(3, 1.0f, 1.0f, 0.0f); // Cachorro amarelo
+  drawDog(0, 2.0, 2.0, 2.0);
+  drawDog(1, 0.0f, 2.0, 2.0);
+  drawDog(2, 2.0, 0.0f, 2.0);
+  drawDog(3, 2.0, 2.0, 0.0f);
 
   // Desvincula o Vertex Array Object (VAO)
   abcg::glBindVertexArray(0);
@@ -254,19 +257,25 @@ void Window::onPaint() {
 
 // Função para desenhar um modelo de cachorro na cena
 void Window::drawDog(int i, float color_r, float color_g, float color_b) {
-  // Matriz de modelo inicializada como uma matriz de identidade
-  glm::mat4 model{1.0f};
-  // Aplica as transformações de translação, rotação e escala ao modelo
+  // Criação da matriz de modelo para o cachorro
+  glm::mat4 model{2.0};
+  // Translação do cachorro para sua posição no plano, levando em consideração a
+  // altura
+
   model = glm::translate(
       model, glm::vec3(dog[i].position.x, height, dog[i].position.z));
+  // Rotação do cachorro em torno do eixo y
   model = glm::rotate(model, glm::radians(dog[i].angle), glm::vec3(0, 1, 0));
+
+  // Escala do modelo do cachorro
   model = glm::scale(model, glm::vec3(scale));
 
-  // Define a matriz de modelo uniforme no shader
+  // Atualiza as variáveis uniformes nos shaders com os valores da matriz de
+  // modelo e cor
   abcg::glUniformMatrix4fv(m_modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
-  // Define a cor uniforme no shader
-  abcg::glUniform4f(m_colorLocation, color_r, color_g, color_b, 1.0f);
-  // Desenha os elementos do modelo usando os índices
+  abcg::glUniform4f(m_colorLocation, color_r, color_g, color_b, 2.0);
+
+  // Desenha o modelo do cachorro usando elementos (índices)
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
                        nullptr);
 }
@@ -294,7 +303,7 @@ void Window::onPaintUI() {
     ImGui::SliderFloat("Vel. Movimento", &MovementVelocity, 0.0f, 5.0f, "%.1f");
     ImGui::SliderFloat("Vel. Rotação", &RotationVelocity, 0.0f, 200.0f, "%.1f");
     ImGui::SliderFloat("Escala", &scale, 0.1f, 0.2f, "%.2f");
-    ImGui::SliderFloat("Altura", &height, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("Altura", &height, 0.0f, 2.0, "%.2f");
   }
   // Finaliza a criação da janela do widget
   ImGui::End();
@@ -322,47 +331,47 @@ void Window::updateDogPosition(int i) {
     float A = dog[i].angle;
 
     // Rotacionando no Ponto A
-    if (X <= -2 && Z >= 2 && A <= 180.0f) {
+    if (X <= -3 && Z >= 3 && A <= 90.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto A ao Ponto B
-    else if (X <= 2 && Z >= 2 && A >= 180.0f) {
+    else if (X <= 3 && Z >= 3 && A >= 90.0f) {
       X += deltaTime * MovementVelocity;
     }
 
     // Rotacionando no Ponto B
-    if (X >= 2 && Z >= 2 && A <= 270.0f) {
+    if (X >= 3 && Z >= 3 && A <= 180.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto B ao Ponto C
-    else if (X >= 2 && Z >= -2 && A >= 270.0f) {
+    else if (X >= 3 && Z >= -3 && A >= 180.0f) {
       Z -= deltaTime * MovementVelocity;
     }
 
     // Rotacionando no Ponto C
-    else if (X >= 2 && Z <= -2 && A <= 360.0f) {
+    else if (X >= 3 && Z <= -3 && A <= 270.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto C ao Ponto D
-    else if (X >= -2 && Z <= -2 && A >= 360) {
+    else if (X >= -3 && Z <= -3 && A >= 270.0f) {
       X -= deltaTime * MovementVelocity;
     }
 
     // Ao chegar no Ponto D definimos o ângulo = 0, pois 360° == 0°
-    else if (X <= -2 && Z <= -2 && A >= 360) {
+    else if (X <= -3 && Z <= -3 && A >= 360.0f) {
       A = 0.0f;
     }
 
     // Rotacionando no Ponto D
-    else if (X <= -2 && Z <= -2 && A <= 90.0f) {
+    else if (X <= -3 && Z <= -3 && A <= 0.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do ponto D ao Ponto A
-    else if (X <= -2 && Z <= 2 && A >= 90.0f) {
+    else if (X <= -3 && Z <= 3 && A >= 0.0f) {
       Z += deltaTime * MovementVelocity;
     }
 
