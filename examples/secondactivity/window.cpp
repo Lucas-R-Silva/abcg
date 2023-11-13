@@ -17,17 +17,17 @@ template <> struct std::hash<Vertex> {
 void Window::onEvent(SDL_Event const &event) {
   if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-      m_dollySpeed = 1.0f;
+      m_dollySpeed = 2.0;
     if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
-      m_dollySpeed = -1.0f;
+      m_dollySpeed = -2.0;
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
-      m_panSpeed = -1.0f;
+      m_panSpeed = -2.0;
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
-      m_panSpeed = 1.0f;
+      m_panSpeed = 2.0;
     if (event.key.keysym.sym == SDLK_q)
-      m_truckSpeed = -1.0f;
+      m_truckSpeed = -2.0;
     if (event.key.keysym.sym == SDLK_e)
-      m_truckSpeed = 1.0f;
+      m_truckSpeed = 2.0;
   }
   if (event.type == SDL_KEYUP) {
     if ((event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w) &&
@@ -54,7 +54,7 @@ void Window::onEvent(SDL_Event const &event) {
  * No onCreate habilitamos o teste de profundidade, criamos o VBO, EBO e VAO
  * usando m_vertices e m_indices. Aqui também carregamos o arquivo do dog.obj
  * e definimos os valores iniciais das posições, ângulos, alturas e escalas dos
- * dragões.
+ * cachorros.
  */
 void Window::onCreate() {
   auto const &assetsPath{abcg::Application::getAssetsPath()};
@@ -118,33 +118,33 @@ void Window::onCreate() {
   abcg::glBindVertexArray(0);
 
   /**
-   *Abaixo vamos definir a escala e altura inicias dos dragões
+   *Abaixo vamos definir a escala e altura inicias dos cachorros
    */
   scale = 0.05f;
   height = 0.0f;
 
   /**
-   *Aqui define-se a posição e o ângulo inicial de cada um dos 4 dragões
+   *Aqui define-se a posição e o ângulo inicial de cada um dos 4 cachorros
    */
-  dog[0].position.x = -2.0f;
+  dog[0].position.x = -3.0f;
   dog[0].position.y = height;
-  dog[0].position.z = 2.0f;
-  dog[0].angle = 180.0f;
+  dog[0].position.z = 3.0f;
+  dog[0].angle = 90.0f;
 
-  dog[1].position.x = 2.0f;
+  dog[1].position.x = 3.0f;
   dog[1].position.y = height;
-  dog[1].position.z = 2.0f;
-  dog[1].angle = 270.0f;
+  dog[1].position.z = 3.0f;
+  dog[1].angle = 180.0f;
 
-  dog[2].position.x = 2.0f;
+  dog[2].position.x = 3.0f;
   dog[2].position.y = height;
-  dog[2].position.z = -2.0f;
-  dog[2].angle = 360.0f;
+  dog[2].position.z = -3.0f;
+  dog[2].angle = 270.0f;
 
-  dog[3].position.x = -2.0f;
+  dog[3].position.x = -3.0f;
   dog[3].position.y = height;
-  dog[3].position.z = -2.0f;
-  dog[3].angle = 90.0f;
+  dog[3].position.z = -3.0f;
+  dog[3].angle = 360.0f;
 }
 
 /**
@@ -204,7 +204,7 @@ void Window::loadModelFromFile(std::string_view path) {
 }
 
 /**
- *A função onPaint() é chamada a cada frame para desenhar os dragões na tela
+ *A função onPaint() é chamada a cada frame para desenhar os cachorros na tela
  */
 void Window::onPaint() {
   // Clear color buffer and depth buffer
@@ -224,13 +224,13 @@ void Window::onPaint() {
   abcg::glBindVertexArray(m_VAO);
 
   /**
-   * Chamamos a função drawDog para cada dos 4 dragões passando a posição do
+   * Chamamos a função drawDog para cada dos 4 cachorros passando a posição do
    * dog no array e sua cor rgb
    */
-  drawDog(0, 1.0f, 1.0f, 1.0f);
-  drawDog(1, 0.0f, 1.0f, 1.0f);
-  drawDog(2, 1.0f, 0.0f, 1.0f);
-  drawDog(3, 1.0f, 1.0f, 0.0f);
+  drawDog(0, 2.0, 2.0, 2.0);
+  drawDog(1, 0.0f, 2.0, 2.0);
+  drawDog(2, 2.0, 0.0f, 2.0);
+  drawDog(3, 2.0, 2.0, 0.0f);
 
   abcg::glBindVertexArray(0);
 
@@ -241,11 +241,11 @@ void Window::onPaint() {
 }
 
 /**
- * Aqui desenha-se os dragões de acordo com suas posições, ângulos, alturas,
+ * Aqui desenha-se os cachorros de acordo com suas posições, ângulos, alturas,
  * escalas e cores
  */
 void Window::drawDog(int i, float color_r, float color_g, float color_b) {
-  glm::mat4 model{1.0f};
+  glm::mat4 model{2.0};
   model = glm::translate(
       model, glm::vec3(dog[i].position.x, height, dog[i].position.z));
   model =
@@ -253,14 +253,14 @@ void Window::drawDog(int i, float color_r, float color_g, float color_b) {
   model = glm::scale(model, glm::vec3(scale));
 
   abcg::glUniformMatrix4fv(m_modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
-  abcg::glUniform4f(m_colorLocation, color_r, color_g, color_b, 1.0f);
+  abcg::glUniform4f(m_colorLocation, color_r, color_g, color_b, 2.0);
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
                        nullptr);
 }
 
 /**
  * Aqui criamos a interface que permite ao usuário pausar o jogo, alterar as
- *alturas, escalas e velocidades de movimento e rotação dos dragões.
+ *alturas, escalas e velocidades de movimento e rotação dos cachorros.
  */
 void Window::onPaintUI() {
   abcg::OpenGLWindow::onPaintUI();
@@ -277,14 +277,14 @@ void Window::onPaintUI() {
     ImGui::SliderFloat("Vel. Movimento", &MovementVelocity, 0.0f, 5.0f, "%.1f");
     ImGui::SliderFloat("Vel. Rotação", &RotationVelocity, 0.0f, 200.0f, "%.1f");
     ImGui::SliderFloat("Escala", &scale, 0.1f, 0.2f, "%.2f");
-    ImGui::SliderFloat("Altura", &height, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("Altura", &height, 0.0f, 2.0, "%.2f");
   }
   ImGui::End();
 }
 
 /**
  * Função executada a cada frame responsável por chamar a função
- * updateDogPosition que altera a posição dos dragões e da câmera controlada
+ * updateDogPosition que altera a posição dos cachorros e da câmera controlada
  * pelo usuário
  */
 void Window::onUpdate() {
@@ -296,7 +296,7 @@ void Window::onUpdate() {
 
 /**
  * updateDogPosition é responsável por alterar a posição e rotação dos
- * dragões. Aqui também é atualizada a posição da câmera do usuário.
+ * cachorros. Aqui também é atualizada a posição da câmera do usuário.
  */
 void Window::updateDogPosition(int i) {
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
@@ -311,47 +311,47 @@ void Window::updateDogPosition(int i) {
     float A = dog[i].angle;
 
     // Rotacionando no Ponto A
-    if (X <= -2 && Z >= 2 && A <= 180.0f) {
+    if (X <= -3 && Z >= 3 && A <= 90.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto A ao Ponto B
-    else if (X <= 2 && Z >= 2 && A >= 180.0f) {
+    else if (X <= 3 && Z >= 3 && A >= 90.0f) {
       X += deltaTime * MovementVelocity;
     }
 
     // Rotacionando no Ponto B
-    if (X >= 2 && Z >= 2 && A <= 270.0f) {
+    if (X >= 3 && Z >= 3 && A <= 180.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto B ao Ponto C
-    else if (X >= 2 && Z >= -2 && A >= 270.0f) {
+    else if (X >= 3 && Z >= -3 && A >= 180.0f) {
       Z -= deltaTime * MovementVelocity;
     }
 
     // Rotacionando no Ponto C
-    else if (X >= 2 && Z <= -2 && A <= 360.0f) {
+    else if (X >= 3 && Z <= -3 && A <= 270.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do Ponto C ao Ponto D
-    else if (X >= -2 && Z <= -2 && A >= 360) {
+    else if (X >= -3 && Z <= -3 && A >= 270.0f) {
       X -= deltaTime * MovementVelocity;
     }
 
     // Ao chegar no Ponto D definimos o ângulo = 0, pois 360° == 0°
-    else if (X <= -2 && Z <= -2 && A >= 360) {
+    else if (X <= -3 && Z <= -3 && A >= 360.0f) {
       A = 0.0f;
     }
 
     // Rotacionando no Ponto D
-    else if (X <= -2 && Z <= -2 && A <= 90.0f) {
+    else if (X <= -3 && Z <= -3 && A <= 0.0f) {
       A += deltaTime * RotationVelocity;
     }
 
     // Movimentando do ponto D ao Ponto A
-    else if (X <= -2 && Z <= 2 && A >= 90.0f) {
+    else if (X <= -3 && Z <= 3 && A >= 0.0f) {
       Z += deltaTime * MovementVelocity;
     }
 
