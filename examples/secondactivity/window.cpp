@@ -289,7 +289,7 @@ void Window::onPaintUI() {
   auto const widgetSize{ImVec2(218, 180)};
 
   // Define a posição da janela do widget
-  ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5, 5));
+  ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x / 2 , 0));
   // Define o tamanho da janela do widget
   ImGui::SetNextWindowSize(widgetSize);
   // Inicia a criação da janela do widget
