@@ -1,9 +1,9 @@
-## Atividade 2 
+## Atividade 2
 
 Este projeto foi desenvolvido por:
 
-* Aluno: Lucas Ribeiro da Silva     RA: 21006316
-* Aluno: Guilherme Melo Ramos Amaro RA: 11087715
+- Aluno: Lucas Ribeiro da Silva RA: 21006316
+- Aluno: Guilherme Melo Ramos Amaro RA: 11087715
 
 ### Descrição
 
@@ -146,7 +146,7 @@ private:
 
   // Função para desenhar um modelo de cachorro na cena
   void drawDog(int i, float color_r, float color_g, float color_b);
-  
+
   // Função para atualizar a posição de um cachorro na cena
   void updateDogPosition(int i);
 };
@@ -230,7 +230,8 @@ void Window::onCreate() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Cria o programa OpenGL a partir dos shaders fornecidos
-  m_program = abcg::createOpenGLProgram({%{% .source = assetsPath + "lookat.vert", .stage = abcg::ShaderStage::Vertex%}, {%.source = assetsPath + "lookat.frag", .stage = abcg::ShaderStage::Fragment %}%});
+  m_program = abcg::createOpenGLProgram({{ \.source = assetsPath + "lookat.vert", \.stage = abcg::ShaderStage::Vertex}, {\.source = assetsPath + "lookat.frag", \.stage = abcg::ShaderStage::Fragment }});
+
 
   // Cria o plano (ground)
   m_ground.create(m_program);
@@ -569,6 +570,6 @@ void Window::onDestroy() {
 
 Os demais arquivos foram uma importação do projeto lookat, sem nenhuma modificação relevante.
 
-
 #### Página Web com Aplicação
+
 https://lucas-r-silva.github.io/abcg/public/index.html
