@@ -571,7 +571,7 @@ void Window::onDestroy() {
 }
 ```
 
-
+Os demais arquivos foram uma importação do projeto lookat, sem nenhuma modificação relevante.
 
 
 #### Página Web com Aplicação
