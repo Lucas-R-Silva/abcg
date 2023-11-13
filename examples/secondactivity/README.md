@@ -571,7 +571,7 @@ void Window::onDestroy() {
 }
 ```
 
-Os arquivos **lookat.frag**, **lookat.vert**, **camera.hpp**, **camera.cpp**, **ground.hpp** e **ground.cpp** são uma importação do projeto **lookat**.
+<!-- Os arquivos **lookat.frag**, **lookat.vert**, **camera.hpp**, **camera.cpp**, **ground.hpp** e **ground.cpp** são uma importação do projeto **lookat**. -->
 
 
 #### Página Web com Aplicação
