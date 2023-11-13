@@ -17,6 +17,7 @@ O observador da cena consegue se movimentar nela usando o teclado, foi usado com
 
 O arquivo main.cpp define a inicilização do programa
 
+```
 #include "window.hpp"
 
 int main(int argc, char **argv) {
@@ -38,12 +39,13 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
-
+```
 
 ### window.hpp
 
 O arquivo window.hpp gerencia a aplicação armazendo variáveis e métodos.
 
+```
 #ifndef WINDOW_HPP_
 #define WINDOW_HPP_
 
@@ -150,11 +152,13 @@ private:
 };
 
 #endif
+```
 
 ### window.cpp
 
 Arquivo responsável por configurar cena e objetos. Os métodos e linhas de comando estão comentados no decorrer do arquivo.
 
+```
 #include "window.hpp"
 
 #include <glm/gtx/fast_trigonometry.hpp>
@@ -565,7 +569,7 @@ void Window::onDestroy() {
   // Deleta o Vertex Array Object (VAO)
   abcg::glDeleteVertexArrays(1, &m_VAO);
 }
-
+```
 
 Os arquivos **lookat.frag**, **lookat.vert**, **camera.hpp**, **camera.cpp**, **ground.hpp** e **ground.cpp** são uma importação do projeto **lookat**.
 
