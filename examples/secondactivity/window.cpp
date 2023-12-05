@@ -3,17 +3,19 @@
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <unordered_map>
 
-// Especialização explícita de std::hash para Vertex
+// Struct explicita de std::hash para Vertex
 template <> struct std::hash<Vertex> {
+  // Calcula o hash para um objeto Vertex.
   size_t operator()(Vertex const &vertex) const noexcept {
+    // Calcula o hash da posição usando a especialização padrão de std::hash
+    // para glm::vec3.
     auto const h1{std::hash<glm::vec3>()(vertex.position)};
+    // Retorna o resultado do cálculo do hash.
     return h1;
   }
 };
 
-/**
- * Aqui captura-se eventos do teclado e mouse para movimentação da camera
- */
+// Aqui captura-se eventos do teclado e mouse para movimentacao da camera
 void Window::onEvent(SDL_Event const &event) {
   if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
@@ -51,38 +53,41 @@ void Window::onEvent(SDL_Event const &event) {
 }
 
 /**
- * No onCreate habilitamos o teste de profundidade, criamos o VBO, EBO e VAO
- * usando m_vertices e m_indices. Aqui também carregamos o arquivo do dog.obj
- * e definimos os valores iniciais das posições, ângulos, alturas e escalas dos
- * cachorros.
+ Inicializa uma janela OpenGL, configurando a cor de limpeza,
+ ativando o teste de profundidade, criando e carregando shaders,
+ gerando buffers e objetos de array para um modelo 3D "dog",
+ além de definir propriedades iniciais para múltiplas instâncias desses objetos.
  */
 void Window::onCreate() {
+  // Obtém o caminho dos ativos do aplicativo
   auto const &assetsPath{abcg::Application::getAssetsPath()};
 
+  // Define a cor de limpeza para preto
   abcg::glClearColor(0, 0, 0, 1);
 
-  // Enable depth buffering
+  // Habilita o teste de profundidade
   abcg::glEnable(GL_DEPTH_TEST);
 
-  // Create program
+  // Cria o programa OpenGL a partir dos shaders fornecidos
   m_program =
       abcg::createOpenGLProgram({{.source = assetsPath + "lookat.vert",
                                   .stage = abcg::ShaderStage::Vertex},
                                  {.source = assetsPath + "lookat.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
+  // Cria o plano (ground)
   m_ground.create(m_program);
 
-  // Get location of uniform variables
+  // Obtém as localizações das variáveis uniformes no shader
   m_viewMatrixLocation = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLocation = abcg::glGetUniformLocation(m_program, "projMatrix");
   m_modelMatrixLocation = abcg::glGetUniformLocation(m_program, "modelMatrix");
   m_colorLocation = abcg::glGetUniformLocation(m_program, "color");
 
-  // Carregando modelo do dog
+  // Carrega o modelo do arquivo "dog.obj"
   loadModelFromFile(assetsPath + "dog.obj");
 
-  // Generate VBO
+  // Gera o VBO (Vertex Buffer Object)
   abcg::glGenBuffers(1, &m_VBO);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
   abcg::glBufferData(GL_ARRAY_BUFFER,
@@ -90,7 +95,7 @@ void Window::onCreate() {
                      m_vertices.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  // Generate EBO
+  // Gera o EBO (Element Buffer Object)
   abcg::glGenBuffers(1, &m_EBO);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
   abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -98,10 +103,10 @@ void Window::onCreate() {
                      m_indices.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  // Create VAO
+  // Cria o VAO (Vertex Array Object)
   abcg::glGenVertexArrays(1, &m_VAO);
 
-  // Bind vertex attributes to current VAO
+  // Vincula os atributos de vértice ao VAO atual
   abcg::glBindVertexArray(m_VAO);
 
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -114,9 +119,8 @@ void Window::onCreate() {
 
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
-  // End of binding to current VAO
+  // Fim da vinculação ao VAO atual
   abcg::glBindVertexArray(0);
-
   /**
    *Abaixo vamos definir a escala e altura inicias dos cachorros
    */
@@ -147,14 +151,15 @@ void Window::onCreate() {
   dog[3].angle = 360.0f;
 }
 
-/**
- * Função responsável por carregar o modelo do dog através do arquivo
- * dragon.obj
- */
+// Carrega um modelo 3D a partir de um arquivo dog.obj usando a biblioteca
+// tinyobj.
 void Window::loadModelFromFile(std::string_view path) {
+  // Objeto para leitura do modelo 3D
   tinyobj::ObjReader reader;
 
+  // Tenta fazer o parsing do modelo a partir do arquivo especificado
   if (!reader.ParseFromFile(path.data())) {
+    // Trata erros de parsing e lança uma exceção em caso de falha
     if (!reader.Error().empty()) {
       throw abcg::RuntimeError(
           fmt::format("Failed to load model {} ({})", path, reader.Error()));
@@ -162,65 +167,73 @@ void Window::loadModelFromFile(std::string_view path) {
     throw abcg::RuntimeError(fmt::format("Failed to load model {}", path));
   }
 
+  // Exibe warnings, se houver
   if (!reader.Warning().empty()) {
     fmt::print("Warning: {}\n", reader.Warning());
   }
 
+  // Obtém os atributos e formas do modelo
+
   auto const &attributes{reader.GetAttrib()};
   auto const &shapes{reader.GetShapes()};
 
+  // Limpa os vetores de vértices e índices existentes
   m_vertices.clear();
   m_indices.clear();
 
-  // A key:value map with key=Vertex and value=index
+  // Um mapa chave-valor com chave=Vertex e valor=index
   std::unordered_map<Vertex, GLuint> hash{};
 
-  // Loop over shapes
+  // Loop sobre as formas do modelo
   for (auto const &shape : shapes) {
-    // Loop over indices
+    // Loop sobre os índices da malha
     for (auto const offset : iter::range(shape.mesh.indices.size())) {
-      // Access to vertex
+      // Acesso ao índice do vértice
+
       auto const index{shape.mesh.indices.at(offset)};
 
-      // Vertex position
+      // Posição do vértice
       auto const startIndex{3 * index.vertex_index};
       auto const vx{attributes.vertices.at(startIndex + 0)};
       auto const vy{attributes.vertices.at(startIndex + 1)};
       auto const vz{attributes.vertices.at(startIndex + 2)};
 
+      // Cria um objeto Vertex com a posição do vértice
       Vertex const vertex{.position = {vx, vy, vz}};
 
-      // If map doesn't contain this vertex
+      // Se o mapa não contém este vértice
       if (!hash.contains(vertex)) {
-        // Add this index (size of m_vertices)
+        // Adiciona este índice (tamanho de m_vertices)
         hash[vertex] = m_vertices.size();
-        // Add this vertex
+        // Adiciona este vértice ao vetor de vértices
         m_vertices.push_back(vertex);
       }
 
+      // Adiciona o índice ao vetor de índices
       m_indices.push_back(hash[vertex]);
     }
   }
 }
 
-/**
- *A função onPaint() é chamada a cada frame para desenhar os cachorros na tela
- */
+// Função chamada para renderizar a cena na janela OpenGL
 void Window::onPaint() {
-  // Clear color buffer and depth buffer
+  // Limpa o buffer de cor e o buffer de profundidade
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // Define a área de visualização
   abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y);
 
+  // Usa o programa OpenGL especificado
   abcg::glUseProgram(m_program);
 
-  // Set uniform variables for viewMatrix and projMatrix
-  // These matrices are used for every scene object
+  // Configura as variáveis uniformes viewMatrix e projMatrix
+  // Essas matrizes são usadas para cada objeto na cena
   abcg::glUniformMatrix4fv(m_viewMatrixLocation, 1, GL_FALSE,
                            &m_camera.getViewMatrix()[0][0]);
   abcg::glUniformMatrix4fv(m_projMatrixLocation, 1, GL_FALSE,
                            &m_camera.getProjMatrix()[0][0]);
 
+  // Vincula o Vertex Array Object (VAO) atual
   abcg::glBindVertexArray(m_VAO);
 
   /**
@@ -232,45 +245,58 @@ void Window::onPaint() {
   drawDog(2, 2.0, 0.0f, 2.0);
   drawDog(3, 2.0, 2.0, 0.0f);
 
+  // Desvincula o Vertex Array Object (VAO)
   abcg::glBindVertexArray(0);
 
-  // Draw ground
+  // Desenha o plano (ground)
   m_ground.paint();
 
+  // Desativa o programa OpenGL
   abcg::glUseProgram(0);
 }
 
-/**
- * Aqui desenha-se os cachorros de acordo com suas posições, ângulos, alturas,
- * escalas e cores
- */
+// Função para desenhar um modelo de cachorro na cena
 void Window::drawDog(int i, float color_r, float color_g, float color_b) {
+  // Criação da matriz de modelo para o cachorro
   glm::mat4 model{2.0};
+  // Translação do cachorro para sua posição no plano, levando em consideração a
+  // altura
+
   model = glm::translate(
       model, glm::vec3(dog[i].position.x, height, dog[i].position.z));
-  model =
-      glm::rotate(model, glm::radians(dog[i].angle), glm::vec3(0, 1, 0));
+  // Rotação do cachorro em torno do eixo y
+  model = glm::rotate(model, glm::radians(dog[i].angle), glm::vec3(0, 1, 0));
+
+  // Escala do modelo do cachorro
   model = glm::scale(model, glm::vec3(scale));
 
+  // Atualiza as variáveis uniformes nos shaders com os valores da matriz de
+  // modelo e cor
   abcg::glUniformMatrix4fv(m_modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(m_colorLocation, color_r, color_g, color_b, 2.0);
+
+  // Desenha o modelo do cachorro usando elementos (índices)
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
                        nullptr);
 }
 
-/**
- * Aqui criamos a interface que permite ao usuário pausar o jogo, alterar as
- *alturas, escalas e velocidades de movimento e rotação dos cachorros.
- */
+// Função para renderizar a interface do usuário (UI) na janela OpenGL
 void Window::onPaintUI() {
+  // Chama a função onPaintUI da classe base para manter funcionalidades padrão
   abcg::OpenGLWindow::onPaintUI();
 
+  // Define o tamanho do widget na interface
   auto const widgetSize{ImVec2(218, 180)};
-  ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5, 5));
+
+  // Define a posição da janela do widget
+  ImGui::SetNextWindowPos(ImVec2(0, 0));
+  // Define o tamanho da janela do widget
   ImGui::SetNextWindowSize(widgetSize);
+  // Inicia a criação da janela do widget
   ImGui::Begin("Widget window", nullptr, ImGuiWindowFlags_NoDecoration);
 
   {
+    // Adiciona controles à janela do widget
     ImGui::RadioButton("start", &startGame, 1);
     ImGui::SameLine();
     ImGui::RadioButton("pause", &startGame, 0);
@@ -279,33 +305,27 @@ void Window::onPaintUI() {
     ImGui::SliderFloat("Escala", &scale, 0.1f, 0.2f, "%.2f");
     ImGui::SliderFloat("Altura", &height, 0.0f, 2.0, "%.2f");
   }
+  // Finaliza a criação da janela do widget
   ImGui::End();
 }
 
-/**
- * Função executada a cada frame responsável por chamar a função
- * updateDogPosition que altera a posição dos cachorros e da câmera controlada
- * pelo usuário
- */
+// Função chamada para atualizar o estado da cena em cada quadro
 void Window::onUpdate() {
+  // Atualiza a posição de cada um dos 4 cachorros na cena
   updateDogPosition(0);
   updateDogPosition(1);
   updateDogPosition(2);
   updateDogPosition(3);
 }
 
-/**
- * updateDogPosition é responsável por alterar a posição e rotação dos
- * cachorros. Aqui também é atualizada a posição da câmera do usuário.
- */
+// Função para atualizar a posição de um cachorro e da câmera na cena
 void Window::updateDogPosition(int i) {
+  // Obtém o intervalo de tempo entre frames
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
 
+  // Verifica se o jogo está em execução
   if (startGame) {
-    /**
-     * As variáveis X, Z e A são utilizadas somente para facilitar o
-     * entendimento na hora de utilizar nos if's.
-     */
+    // Variáveis auxiliares para facilitar a compreensão dos condicionais
     float X = dog[i].position.x;
     float Z = dog[i].position.z;
     float A = dog[i].angle;
@@ -355,9 +375,7 @@ void Window::updateDogPosition(int i) {
       Z += deltaTime * MovementVelocity;
     }
 
-    /**
-     * Atualizando posições e ângulos com os novos valores
-     */
+    // Atualizando posições e ângulos com os novos valores
     dog[i].position.x = X;
     dog[i].position.z = Z;
     dog[i].angle = A;
@@ -369,16 +387,24 @@ void Window::updateDogPosition(int i) {
   m_camera.pan(m_panSpeed * deltaTime);
 }
 
+// Função chamada quando a janela é redimensionada
 void Window::onResize(glm::ivec2 const &size) {
+  // Atualiza o tamanho da viewport com as novas dimensões
   m_viewportSize = size;
+  // Recalcula a matriz de projeção da câmera para acomodar o novo tamanho
   m_camera.computeProjectionMatrix(size);
 }
 
+// Função chamada quando a janela está sendo destruída
 void Window::onDestroy() {
+  // Destroi o plano (ground)
   m_ground.destroy();
 
+  // Deleta o programa OpenGL
   abcg::glDeleteProgram(m_program);
+  // Deleta os buffers de elementos (EBO) e de vértices (VBO)
   abcg::glDeleteBuffers(1, &m_EBO);
   abcg::glDeleteBuffers(1, &m_VBO);
+  // Deleta o Vertex Array Object (VAO)
   abcg::glDeleteVertexArrays(1, &m_VAO);
 }
