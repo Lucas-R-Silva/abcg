@@ -6,5 +6,6 @@
 #add_subdirectory(viewer1)
 #add_subdirectory(starfield)
 #add_subdirectory(lookat)
-add_subdirectory(secondactivity)
+#add_subdirectory(secondactivity)
 #add_subdirectory(loadmodel)
+add_subdirectory(viewer2)
