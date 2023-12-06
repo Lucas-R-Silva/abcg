@@ -192,11 +192,6 @@ void Model::createBuffers() {
  * Se o arquivo existir, ela deleta a textura de difusão anterior e carrega a
  * nova textura utilizando a função de utilitário 'abcg::loadOpenGLTexture'.
  *
- *  path O caminho do arquivo da textura de difusão a ser carregada.
- *
- *  Se o arquivo de textura não existir, a função não realiza nenhuma ação.
- *       Antes de chamar esta função, é necessário garantir que o contexto
- * OpenGL esteja ativo.
  *
  */
 void Model::loadDiffuseTexture(std::string_view path) {
