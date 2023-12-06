@@ -30,7 +30,7 @@ private:
   glm::mat4 m_projMatrix{1.0f};
 
   // Shaders
-  std::vector<char const *> m_shaderNames{"day", "night"};
+  std::vector<char const *> m_shaderNames{"novo", "antigo"};
   std::vector<GLuint> m_programs;
   int m_currentProgramIndex{};
 

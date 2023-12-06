@@ -130,6 +130,14 @@ void Model::createBuffers() {
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Model::loadNormalTexture(std::string_view path) {
+  if (!std::filesystem::exists(path))
+    return;
+
+  abcg::glDeleteTextures(1, &m_normalTexture);
+  m_normalTexture = abcg::loadOpenGLTexture({.path = path});
+}
+
 void Model::loadDiffuseTexture(std::string_view path) {
   if (!std::filesystem::exists(path))
     return;
@@ -138,6 +146,13 @@ void Model::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::loadOpenGLTexture({.path = path});
 }
 
+void Model::loadAantigoTexture(std::string_view path) {
+  if (!std::filesystem::exists(path))
+    return;
+
+  abcg::glDeleteTextures(1, &m_nightTexture);
+  m_nightTexture = abcg::loadOpenGLTexture({.path = path});
+}
 
 void Model::loadObj(std::string_view path, bool standardize) {
   auto const basePath{std::filesystem::path{path}.parent_path().string() + "/"};
@@ -230,6 +245,11 @@ void Model::loadObj(std::string_view path, bool standardize) {
     if (!mat.diffuse_texname.empty())
       loadDiffuseTexture(basePath + mat.diffuse_texname);
 
+    if (!mat.normal_texname.empty()) {
+      loadNormalTexture(basePath + mat.normal_texname);
+    } else if (!mat.bump_texname.empty()) {
+      loadNormalTexture(basePath + mat.bump_texname);
+    }
   } else {
     // Default values
     m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -258,6 +278,12 @@ void Model::render(int numTriangles) const {
 
   abcg::glActiveTexture(GL_TEXTURE0);
   abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
+
+  abcg::glActiveTexture(GL_TEXTURE1);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_normalTexture);
+
+  abcg::glActiveTexture(GL_TEXTURE2);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_nightTexture);
 
   // Set minification and magnification parameters
   abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -350,7 +376,9 @@ void Model::standardize() {
 }
 
 void Model::destroy() {
+  abcg::glDeleteTextures(1, &m_normalTexture);
   abcg::glDeleteTextures(1, &m_diffuseTexture);
+  abcg::glDeleteTextures(1, &m_nightTexture);
   abcg::glDeleteBuffers(1, &m_EBO);
   abcg::glDeleteBuffers(1, &m_VBO);
   abcg::glDeleteVertexArrays(1, &m_VAO);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Atividade 3 
 
 Este projeto foi desenvolvido por:

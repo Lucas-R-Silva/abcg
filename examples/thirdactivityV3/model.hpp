@@ -14,7 +14,9 @@ struct Vertex {
 
 class Model {
 public:
+  void loadNormalTexture(std::string_view path);
   void loadDiffuseTexture(std::string_view path);
+  void loadAantigoTexture(std::string_view path);
   void loadObj(std::string_view path, bool standardize = true);
   void render(int numTriangles = -1) const;
   void setupVAO(GLuint program);
@@ -40,7 +42,9 @@ private:
   glm::vec4 m_Kd{};
   glm::vec4 m_Ks{};
   float m_shininess{};
+  GLuint m_normalTexture{};
   GLuint m_diffuseTexture{};
+  GLuint m_nightTexture{};
 
   std::vector<Vertex> m_vertices;
   std::vector<GLuint> m_indices;
