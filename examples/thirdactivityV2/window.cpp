@@ -144,6 +144,8 @@ void Window::onUpdate() {
   m_viewMatrix =
       glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f + m_zoom),
                   glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+                  
 }
 
 void Window::onPaintUI() {
