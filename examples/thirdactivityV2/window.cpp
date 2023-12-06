@@ -139,14 +139,37 @@ void Window::onPaint() {
 }
 
 void Window::onUpdate() {
+  // Update the rotation of the Doguinho around its own axis (horizontal)
   m_modelMatrix = m_trackBallModel.getRotation();
 
-  m_viewMatrix =
-      glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f + m_zoom),
-                  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  // Update the rotation of the Doguinho around its own axis (vertical)
+  static auto verticalStartTime{std::chrono::high_resolution_clock::now()};
+  auto verticalCurrentTime{std::chrono::high_resolution_clock::now()};
+  float verticalTime{std::chrono::duration<float>(verticalCurrentTime - verticalStartTime).count()};
 
-                  
+  float verticalRotationAngle = 0.3f * verticalTime;  // Adjust the rotation speed as needed
+  glm::mat4 verticalRotationMatrix = glm::rotate(glm::mat4(1.0f), verticalRotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+  // Combine rotation matrices (horizontal and vertical)
+  m_modelMatrix = verticalRotationMatrix * m_modelMatrix;
+
+  // Update the elliptical movement
+  static auto ellipticalStartTime{std::chrono::high_resolution_clock::now()};
+  auto ellipticalCurrentTime{std::chrono::high_resolution_clock::now()};
+  float ellipticalTime{std::chrono::duration<float>(ellipticalCurrentTime - ellipticalStartTime).count()};
+  
+  float ellipticalX = 0.5f * cos(0.5f * ellipticalTime);
+  float ellipticalY = 0.2f * sin(0.5f * ellipticalTime);
+  glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(ellipticalX, ellipticalY, 0.0f));
+
+  // Combine rotation and translation matrices
+  m_modelMatrix = translationMatrix * m_modelMatrix;
+
+  // Set the view matrix
+  m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f + m_zoom),
+                             glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
+
 
 void Window::onPaintUI() {
   abcg::OpenGLWindow::onPaintUI();
