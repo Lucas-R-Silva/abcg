@@ -13,4 +13,5 @@
 #add_subdirectory(viewer4)
 #add_subdirectory(viewer5)
 #add_subdirectory(viewer6)
-add_subdirectory(viewer5_teste2)
+#add_subdirectory(viewer5_teste2)
+add_subdirectory(thirdactivity)
