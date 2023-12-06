@@ -19,6 +19,8 @@ public:
   void render(int numTriangles = -1) const;
   void setupVAO(GLuint program);
   void destroy();
+  void loadNormalTexture(std::string_view path);
+  void loadAntigoTexture(std::string_view path);
 
   [[nodiscard]] int getNumTriangles() const {
     return gsl::narrow<int>(m_indices.size()) / 3;
@@ -41,6 +43,8 @@ private:
   glm::vec4 m_Ks{};
   float m_shininess{};
   GLuint m_diffuseTexture{};
+  GLuint m_normalTexture{};
+  GLuint m_nightTexture{};
 
   std::vector<Vertex> m_vertices;
   std::vector<GLuint> m_indices;

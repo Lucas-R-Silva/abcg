@@ -337,6 +337,12 @@ void Model::loadObj(std::string_view path, bool standardize) {
     if (!mat.diffuse_texname.empty())
       loadDiffuseTexture(basePath + mat.diffuse_texname);
 
+    if (!mat.normal_texname.empty()) {
+      loadNormalTexture(basePath + mat.normal_texname);
+    } else if (!mat.bump_texname.empty()) {
+      loadNormalTexture(basePath + mat.bump_texname);
+    }
+
   } else {
     // Configurar valores padrão se não houver material
     m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -396,6 +402,12 @@ void Model::render(int numTriangles) const {
   // Ativar a textura de difusão associada ao modelo no canal GL_TEXTURE0
   abcg::glActiveTexture(GL_TEXTURE0);
   abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
+
+  abcg::glActiveTexture(GL_TEXTURE1);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_normalTexture);
+
+  abcg::glActiveTexture(GL_TEXTURE2);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_nightTexture);
 
   // Configurar parâmetros de filtragem para minificação e magnificação da
   // textura
@@ -579,4 +591,43 @@ void Model::destroy() {
 
   // Deletar o Array de Objetos de Vértices (VAO) do modelo
   abcg::glDeleteVertexArrays(1, &m_VAO);
+
+  // Deletar a textura de nomrla associada ao modelo
+  abcg::glDeleteTextures(1, &m_normalTexture);
+
+  // Deletar a textura de  associada ao modelo
+  abcg::glDeleteTextures(1, &m_nightTexture);
+}
+
+/**
+ *  Carrega uma textura normal para o modelo a partir do caminho especificado.
+ *
+ * Esta função realiza as seguintes etapas:
+ *   1. Verifica se o arquivo da textura normal no caminho especificado existe.
+ *   2. Deleta a textura normal atualmente associada ao modelo.
+ *   3. Carrega a nova textura normal usando a função `abcg::loadOpenGLTexture`.
+ *
+ *  path O caminho do arquivo da textura normal.
+ *
+ * Se o arquivo não existir, a função retorna sem fazer alterações.
+ */
+void Model::loadNormalTexture(std::string_view path) {
+  // Verificar se o arquivo da textura normal no caminho especificado existe
+  if (!std::filesystem::exists(path))
+    return;
+
+  // Deletar a textura normal atualmente associada ao modelo
+  abcg::glDeleteTextures(1, &m_normalTexture);
+
+  // Carregar a nova textura normal usando a função `abcg::loadOpenGLTexture`
+  m_normalTexture = abcg::loadOpenGLTexture({.path = path});
+}
+
+
+void Model::loadAntigoTexture(std::string_view path) {
+  if (!std::filesystem::exists(path))
+    return;
+
+  abcg::glDeleteTextures(1, &m_nightTexture);
+  m_nightTexture = abcg::loadOpenGLTexture({.path = path});
 }
