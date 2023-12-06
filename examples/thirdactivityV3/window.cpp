@@ -17,7 +17,7 @@ void Window::onEvent(SDL_Event const &event) {
     }
   }
   if (event.type == SDL_MOUSEBUTTONUP) {
-   if (event.button.button == SDL_BUTTON_LEFT) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
       m_trackBallModel.mouseRelease(mousePosition);
     }
     if (event.button.button == SDL_BUTTON_RIGHT) {
@@ -48,7 +48,7 @@ void Window::onCreate() {
   }
 
   // Load default model
-  loadModel(assetsPath + "Doguinho.obj");
+  loadModel(assetsPath + "UFO.obj");
   m_mappingMode = 3; // "From mesh" option
 
   // Initial trackball spin
@@ -61,7 +61,9 @@ void Window::loadModel(std::string_view path) {
 
   m_model.destroy();
 
-  m_model.loadDiffuseTexture(assetsPath + "maps/Doguinho_low_poly_doguinho_uv_BaseColor.png");
+  m_model.loadDiffuseTexture(assetsPath + "maps/UFO_Glass_BaseColor.png");
+  m_model.loadNormalTexture(assetsPath + "maps/UFO_Glass_Normal.png");
+  m_model.loadAantigoTexture(assetsPath + "maps/UFO_Metal_BaseColor.png");
   m_model.loadObj(path);
   m_model.setupVAO(m_programs.at(m_currentProgramIndex));
   m_trianglesToDraw = m_model.getNumTriangles();
@@ -98,12 +100,16 @@ void Window::onPaint() {
   auto const KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   auto const KsLoc{abcg::glGetUniformLocation(program, "Ks")};
   auto const diffuseTexLoc{abcg::glGetUniformLocation(program, "diffuseTex")};
+  auto const normalTexLoc{abcg::glGetUniformLocation(program, "normalTex")};
+  auto const nightTexLoc{abcg::glGetUniformLocation(program, "nightTex")};
   auto const mappingModeLoc{abcg::glGetUniformLocation(program, "mappingMode")};
 
   // Set uniform variables that have the same value for every model
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniform1i(diffuseTexLoc, 0);
+  abcg::glUniform1i(normalTexLoc, 1);
+  abcg::glUniform1i(nightTexLoc, 2);
   abcg::glUniform1i(mappingModeLoc, m_mappingMode);
 
   auto const lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
@@ -166,10 +172,9 @@ void Window::onUpdate() {
   m_modelMatrix = translationMatrix * m_modelMatrix;
 
   // Set the view matrix
-  m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f + m_zoom),
+  m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 4.0f + m_zoom),
                              glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
-
 
 void Window::onPaintUI() {
   abcg::OpenGLWindow::onPaintUI();
@@ -194,7 +199,30 @@ void Window::onPaintUI() {
                      "%d triangles");
     ImGui::PopItemWidth();
 
-    
+    // Textures combo box
+    {
+      static std::size_t currentIndex{};
+
+      ImGui::PushItemWidth(120);
+      if (ImGui::BeginCombo("Textures", m_shaderNames.at(currentIndex))) {
+        for (auto const index : iter::range(m_shaderNames.size())) {
+          auto const isSelected{currentIndex == index};
+          if (ImGui::Selectable(m_shaderNames.at(index), isSelected))
+            currentIndex = index;
+          if (isSelected)
+            ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::PopItemWidth();
+
+      // Set up VAO if shader program has changed
+      if (gsl::narrow<int>(currentIndex) != m_currentProgramIndex) {
+        m_currentProgramIndex = gsl::narrow<int>(currentIndex);
+        m_model.setupVAO(m_programs.at(m_currentProgramIndex));
+      }
+    }
+
     if (!m_model.isUVMapped()) {
       ImGui::TextColored(ImVec4(1, 1, 0, 1), "Mesh has no UV coords.");
     }
