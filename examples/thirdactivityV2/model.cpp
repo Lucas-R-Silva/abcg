@@ -236,8 +236,6 @@ void Model::loadDiffuseTexture(std::string_view path) {
  *
  *  abcg::RuntimeError Se houver erros durante o carregamento do modelo.
  *
- *  Antes de chamar esta função, é necessário garantir que o contexto OpenGL
- * esteja ativo.
  *
  */
 void Model::loadObj(std::string_view path, bool standardize) {
@@ -388,12 +386,6 @@ void Model::loadObj(std::string_view path, bool standardize) {
  * menor que zero, renderiza todos os triângulos do modelo. Caso contrário,
  * renderiza o número especificado de triângulos multiplicado por 3 (para
  * triângulos OpenGL).
- *
- *  Antes de chamar esta função, é necessário garantir que o contexto OpenGL
- * esteja ativo.
- *
- *  Model::m_VAO, Model::m_diffuseTexture, abcg::glBindVertexArray,
- * abcg::glBindTexture, abcg::glTexParameteri, abcg::glDrawElements
  */
 void Model::render(int numTriangles) const {
   // Vincular o VAO do modelo
@@ -442,15 +434,6 @@ void Model::render(int numTriangles) const {
  * como posição, normal, coordenadas de textura e tangente.
  *   5. Desvincula o VAO e os buffers para evitar interferências com outros
  * objetos gráficos.
- *
- *  program O identificador do programa de shader OpenGL associado ao modelo.
- *
- *  Antes de chamar esta função, é necessário garantir que o contexto OpenGL
- * esteja ativo.
- *
- *  Model::m_VAO, Model::m_EBO, Model::m_VBO, abcg::glDeleteVertexArrays,
- * abcg::glGenVertexArrays, abcg::glBindVertexArray, abcg::glBindBuffer,
- * abcg::glEnableVertexAttribArray, abcg::glVertexAttribPointer
  */
 void Model::setupVAO(GLuint program) {
   // Liberar o VAO anterior, se existir
@@ -607,8 +590,6 @@ void Model::destroy() {
  *   2. Deleta a textura normal atualmente associada ao modelo.
  *   3. Carrega a nova textura normal usando a função `abcg::loadOpenGLTexture`.
  *
- *  path O caminho do arquivo da textura normal.
- *
  * Se o arquivo não existir, a função retorna sem fazer alterações.
  */
 void Model::loadNormalTexture(std::string_view path) {
@@ -623,11 +604,24 @@ void Model::loadNormalTexture(std::string_view path) {
   m_normalTexture = abcg::loadOpenGLTexture({.path = path});
 }
 
-
+/**
+ *  Carrega uma textura antigo para o modelo a partir do caminho especificado.
+ *
+ * Esta função realiza as seguintes etapas:
+ *   1. Verifica se o arquivo da textura normal no caminho especificado existe.
+ *   2. Deleta a textura normal atualmente associada ao modelo.
+ *   3. Carrega a nova textura normal usando a função `abcg::loadOpenGLTexture`.
+ *
+ * Se o arquivo não existir, a função retorna sem fazer alterações.
+ */
 void Model::loadAntigoTexture(std::string_view path) {
+  // Verificar se o arquivo da textura normal no caminho especificado existe
   if (!std::filesystem::exists(path))
     return;
 
+  // Deletar a textura normal atualmente associada ao modelo
   abcg::glDeleteTextures(1, &m_nightTexture);
+
+  // Carregar a nova textura normal usando a função `abcg::loadOpenGLTexture`
   m_nightTexture = abcg::loadOpenGLTexture({.path = path});
 }
