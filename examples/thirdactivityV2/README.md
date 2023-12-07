@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-## Atividade 3 
+## Atividade 3 -  Lost in the space
 
 Este projeto foi desenvolvido por:
 
